@@ -127,7 +127,7 @@ IV gene gene_id
 
 `cat 1.gtf | awk ' { print $3, $5-$4 + 1 } ' | head` 
 ```
-1
+ 1
  1
  1
  1
@@ -144,13 +144,71 @@ cat 1.gtf | awk 'BEGIN{size=0;}$3 =="CDS"{ len=$5-$4 + 1; size += len; print "Si
 Size: 9030648
 ```
 
-#或者用awk只在最后输出统计的结果:
+#或者用awk只在最后输出统计的结果:<br>
 `cat 1.gtf | awk 'BEGIN{L=0;}$3 =="CDS"{L+=$5-$4 + 1;}END{print L;}'`<br>
 `9030648`<br>
 #或者利用awk自动初始化的特性:<br>
 `cat 1.gtf | awk '$3 =="CDS"{L+=$5-$4 + 1;}END{print L;}'`<br>
 `9030648`<br>
-#计算1号染色体cds的平均长度
+#计算1号染色体cds的平均长度<br>
 #awk既可从pipe中读取输入，也可从文件中读取输入<br>
 `awk 'BEGIN  {s = 0;line = 0;}$3 =="CDS" && $1 =="I"{ s += $5-$4+1;line += 1}END {print "mean="s/line}' 1.gtf`<br>
 `mean=1239.52`<br>
+### step3.3 分离并提取基因名字
+`cat 1.gtf | awk '$3 == "gene"{split($10,x,";");name = x[1];gsub("\"", "", name);print name,$5-$4+1}' | head`
+```
+YDL248W 1152
+YDL247W-A 75
+YDL247W 1830
+YDL246C 1074
+YDL245C 1704
+YDL244W 1023
+YDL243C 990
+YDL242W 354
+YDL241W 372
+YDL240C-A 138
+```
+
+## step4.提取数据并存入新文件
+### step4.1 提取数据存入txt文件示范
+`grep exon 1.gtf | awk '{print $5-$4+1}' | sort -n | tail -3 > 1.txt`
+```
+12279
+14730
+14733
+~                                                                                
+~                                                                                
+~                                                                                
+~                                                                                
+~                                                                                
+~                                                                                
+~                                                                                
+~                                                                                
+~                                                                                
+~                                                                                
+~                                                                                
+~                                                                                
+~                                                                                
+~                                                                                
+~                                                                                
+~                                                                                
+~                                                                                
+"1.txt" 3L, 18C
+```
+
+### step4.2 可执行文件编辑示范
+```
+vi run.sh
+#!/bin/bash   
+grep exon *.gtf | awk '{print $5-$4+1}' | sort -n | tail -3
+#赋予脚本可执行的权限<br>
+chmod u+x run.sh
+#运行脚本<br>
+./run.sh
+```
+
+```
+12279
+14730
+14733
+```
